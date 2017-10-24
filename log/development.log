@@ -1,0 +1,2525 @@
+  [1m[36m (21.3ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (2.4ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36mActiveRecord::SchemaMigration Load (0.7ms)[0m  [1mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to CreateRetailPlans (20150708074606)
+  [1m[35m (0.4ms)[0m  BEGIN
+  [1m[36m (16.3ms)[0m  [1mCREATE TABLE "retail_plans" ("id" serial primary key, "name" character varying, "created" date, "start_date" date, "end_date" date, "expected_expiry_date" date, "discount" float, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (1.2ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150708074606"]]
+  [1m[36m (1.2ms)[0m  [1mCOMMIT[0m
+Migrating to CreateMeters (20150708141214)
+  [1m[35m (1.4ms)[0m  BEGIN
+  [1m[36m (4.3ms)[0m  [1mCREATE TABLE "meters" ("id" serial primary key, "serial" varchar(12) NOT NULL, "nmi" char(10) NOT NULL, "billing_site_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150708141214"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to CreateMeterRecords (20150708153345)
+  [1m[35m (1.0ms)[0m  BEGIN
+  [1m[36m (5.7ms)[0m  [1mCREATE TABLE "meter_records" ("id" serial primary key, "meter" integer, "register" varchar(10) NOT NULL, "date" date NOT NULL, "interval" integer DEFAULT 30, "unit_of_measurement" varchar(4) NOT NULL, "usage" float[] NOT NULL) [0m
+  [1m[35m (1.7ms)[0m  CREATE  INDEX  "index_meter_records_on_meter" ON "meter_records"  ("meter")
+  [1m[36m (1.9ms)[0m  [1mCREATE  INDEX  "index_meter_records_on_register" ON "meter_records"  ("register")[0m
+  [1m[35m (1.8ms)[0m  CREATE  INDEX  "index_meter_records_on_date" ON "meter_records"  ("date")
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150708153345"]]
+  [1m[35m (0.9ms)[0m  COMMIT
+Migrating to UpdateMeterRecordsChangeMeterToMeterId (20150709151405)
+  [1m[36m (1.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.6ms)[0m  ALTER TABLE "meter_records" RENAME COLUMN "meter" TO "meter_id"
+  [1m[36m (0.4ms)[0m  [1mALTER INDEX "index_meter_records_on_meter" RENAME TO "index_meter_records_on_meter_id"[0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150709151405"]]
+  [1m[36m (0.4ms)[0m  [1mCOMMIT[0m
+Migrating to CreateMeterAggregations (20150710021040)
+  [1m[35m (0.3ms)[0m  BEGIN
+  [1m[36m (4.2ms)[0m  [1mCREATE TABLE "meter_aggregations" ("id" serial primary key, "meter_id" integer NOT NULL, "register" varchar(10) NOT NULL, "date" date NOT NULL, "start_time" time NOT NULL, "end_time" time NOT NULL, "unit_of_measurement" varchar(4) NOT NULL, "usage" float NOT NULL) [0m
+  [1m[35m (1.8ms)[0m  CREATE  INDEX  "index_meter_aggregations_on_meter_id" ON "meter_aggregations"  ("meter_id")
+  [1m[36m (1.9ms)[0m  [1mCREATE  INDEX  "index_meter_aggregations_on_register" ON "meter_aggregations"  ("register")[0m
+  [1m[35m (1.9ms)[0m  CREATE  INDEX  "index_meter_aggregations_on_date" ON "meter_aggregations"  ("date")
+  [1m[36m (2.4ms)[0m  [1mCREATE  INDEX  "index_meter_aggregations_on_start_time" ON "meter_aggregations"  ("start_time")[0m
+  [1m[35m (1.7ms)[0m  CREATE  INDEX  "index_meter_aggregations_on_end_time" ON "meter_aggregations"  ("end_time")
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150710021040"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to CreateInvoices (20150710030416)
+  [1m[36m (2.0ms)[0m  [1mBEGIN[0m
+  [1m[35m (7.8ms)[0m  CREATE TABLE "invoices" ("id" serial primary key, "file" character varying, "start_date" date, "end_date" date, "issue_date" date, "distribution_loss_factor" float, "marginal_loss_factor" float, "total_loss_factor" float, "invoiced_total" decimal, "generated_total" decimal, "retail_plan_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150710030416"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to DeviseCreateUsers (20150710035957)
+  [1m[36m (1.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (6.8ms)[0m  CREATE TABLE "users" ("id" serial primary key, "name" character varying, "email" character varying DEFAULT '' NOT NULL, "encrypted_password" character varying DEFAULT '' NOT NULL, "reset_password_token" character varying, "reset_password_sent_at" timestamp, "remember_created_at" timestamp, "sign_in_count" integer DEFAULT 0 NOT NULL, "current_sign_in_at" timestamp, "last_sign_in_at" timestamp, "current_sign_in_ip" inet, "last_sign_in_ip" inet, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (2.7ms)[0m  [1mCREATE UNIQUE INDEX  "index_users_on_email" ON "users"  ("email")[0m
+  [1m[35m (1.8ms)[0m  CREATE UNIQUE INDEX  "index_users_on_reset_password_token" ON "users"  ("reset_password_token")
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150710035957"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to CreateFtpServers (20150713050512)
+  [1m[36m (1.1ms)[0m  [1mBEGIN[0m
+  [1m[35m (9.5ms)[0m  CREATE TABLE "ftp_servers" ("id" serial primary key, "name" character varying, "server" character varying, "username" character varying, "password" character varying, "last_poll" date, "next_poll" date, "poll_unit" integer, "poll_value" integer, "user_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150713050512"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to AddPrimaryKeyToMeterRecords (20150713144422)
+  [1m[36m (1.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (2.6ms)[0m  ALTER TABLE meter_records ADD CONSTRAINT composite UNIQUE (meter_id, register, date);
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150713144422"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to CreateSites (20150715022115)
+  [1m[36m (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (6.7ms)[0m  CREATE TABLE "sites" ("id" serial primary key, "name" character varying, "address1" character varying, "address2" character varying, "user_id" integer, "created" timestamp, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150715022115"]]
+  [1m[35m (0.7ms)[0m  COMMIT
+Migrating to CreateBillingSites (20150715025946)
+  [1m[36m (1.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (7.2ms)[0m  CREATE TABLE "billing_sites" ("id" serial primary key, "name" character varying, "site_id" integer, "created" timestamp, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150715025946"]]
+  [1m[35m (0.6ms)[0m  COMMIT
+Migrating to AddBillingSiteToRetailPlan (20150720032944)
+  [1m[36m (1.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.8ms)[0m  ALTER TABLE "retail_plans" ADD "billing_site_id" integer
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150720032944"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to CreateMeterRecordsIgnoreDuplicatesRule (20150721142156)
+  [1m[36m (0.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (7.7ms)[0m  CREATE OR REPLACE RULE ignore_duplicate_meter_records
+              AS ON INSERT TO meter_records
+              WHERE (EXISTS ( SELECT meter_records.meter_id
+              FROM meter_records
+              WHERE
+                meter_records.meter_id = new.meter_id
+                AND meter_records.register = new.register AND
+                meter_records.date = new.date))
+              DO INSTEAD NOTHING
+  [1m[36mSQL (0.7ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150721142156"]]
+  [1m[35m (0.6ms)[0m  COMMIT
+Migrating to CreateDailyUsageCharges (20150722034659)
+  [1m[36m (0.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (5.4ms)[0m  CREATE TABLE "daily_usage_charges" ("id" serial primary key, "start_time" time, "end_time" time, "unit_of_measurement" character varying, "charge_factory_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722034659"]]
+  [1m[35m (0.6ms)[0m  COMMIT
+Migrating to AddRetailerToRetailPlan (20150722042356)
+  [1m[36m (0.9ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.6ms)[0m  ALTER TABLE "retail_plans" ADD "retailer_id" integer
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722042356"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to CreateRetailers (20150722042704)
+  [1m[36m (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (6.4ms)[0m  CREATE TABLE "retailers" ("id" serial primary key, "retailer_name" character varying, "retailer_address" character varying, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722042704"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to CreateConcreteCharges (20150722044428)
+  [1m[36m (1.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (6.1ms)[0m  CREATE TABLE "concrete_charges" ("id" serial primary key, "invoice_id" integer, "invoiced_amount" decimal, "generated_amount" decimal, "charge_attributes" character varying, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.6ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722044428"]]
+  [1m[35m (0.6ms)[0m  COMMIT
+Migrating to CreateGlobalUsageCharges (20150722045220)
+  [1m[36m (1.0ms)[0m  [1mBEGIN[0m
+  [1m[35m (7.7ms)[0m  CREATE TABLE "global_usage_charges" ("id" serial primary key, "unit_of_measurement" character varying, "charge_factory_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722045220"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to CreateMeteringCharges (20150722045228)
+  [1m[36m (1.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (5.5ms)[0m  CREATE TABLE "metering_charges" ("id" serial primary key, "charge_factory_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722045228"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to CreateSupplyCharges (20150722045237)
+  [1m[36m (1.5ms)[0m  [1mBEGIN[0m
+  [1m[35m (5.8ms)[0m  CREATE TABLE "supply_charges" ("id" serial primary key, "charge_factory_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150722045237"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to AddIgnoreDuplicateAggregationsRule (20150724001642)
+  [1m[36m (1.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (1.4ms)[0m  CREATE OR REPLACE RULE ignore_duplicate_meter_aggregations
+              AS ON INSERT TO meter_aggregations
+              WHERE (EXISTS ( SELECT meter_aggregations.meter_id
+              FROM meter_aggregations
+              WHERE
+                meter_aggregations.meter_id = new.meter_id
+                AND meter_aggregations.start_time = new.start_time
+                AND meter_aggregations.end_time = new.end_time
+                AND meter_aggregations.date = new.date))
+              DO INSTEAD NOTHING
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150724001642"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to CreateChargeFactory (20150724060215)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (7.9ms)[0m  CREATE TABLE "charge_factories" ("id" serial primary key, "name" character varying, "rate" decimal(10,5), "retail_plan_id" integer, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.2ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150724060215"]]
+  [1m[35m (0.7ms)[0m  COMMIT
+Migrating to AddRetailPlanIdToDailyUsageCharge (20150727151441)
+  [1m[36m (1.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.6ms)[0m  ALTER TABLE "retail_plans" ADD "daily_usage_charge_id" integer
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "daily_usage_charges" ADD "retail_plan_id" integer[0m
+  [1m[35m (0.5ms)[0m  ALTER TABLE "retail_plans" ADD "charge_factory_id" integer
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150727151441"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to ChangeUomToChar5OnMeterAggregations (20150729035434)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (17.5ms)[0m  ALTER TABLE meter_aggregations ALTER COLUMN unit_of_measurement TYPE char(5);
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150729035434"]]
+  [1m[35m (1.9ms)[0m  COMMIT
+Migrating to ChangeUomToChar5OnMeterRecords (20150729040217)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (16.6ms)[0m  ALTER TABLE meter_records ALTER COLUMN unit_of_measurement TYPE char(5);
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150729040217"]]
+  [1m[35m (1.9ms)[0m  COMMIT
+Migrating to CreateMeterPredictors (20150816084246)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (5.9ms)[0m  CREATE TABLE "meter_predictors" ("id" serial primary key, "meter_id" integer NOT NULL, "start_time" time NOT NULL, "end_time" time NOT NULL, "calculated_date" date NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (2.7ms)[0m  [1mCREATE  INDEX  "index_meter_predictors_on_meter_id" ON "meter_predictors"  ("meter_id")[0m
+  [1m[35m (2.9ms)[0m  CREATE  INDEX  "index_meter_predictors_on_start_time" ON "meter_predictors"  ("start_time")
+  [1m[36m (1.9ms)[0m  [1mCREATE  INDEX  "index_meter_predictors_on_end_time" ON "meter_predictors"  ("end_time")[0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150816084246"]]
+  [1m[36m (0.6ms)[0m  [1mCOMMIT[0m
+Migrating to CreateLinearRegressionPredictors (20150816092727)
+  [1m[35m (1.3ms)[0m  BEGIN
+  [1m[36m (7.1ms)[0m  [1mCREATE TABLE "linear_regression_predictors" ("id" serial primary key, "a" decimal, "b" decimal, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150816092727"]]
+  [1m[36m (0.6ms)[0m  [1mCOMMIT[0m
+Migrating to CreateImportedInvoices (20150817071805)
+  [1m[35m (1.2ms)[0m  BEGIN
+  [1m[36m (6.5ms)[0m  [1mCREATE TABLE "imported_invoices" ("id" serial primary key, "file" character varying, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.2ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150817071805"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to CreateGeneratedInvoices (20150817071901)
+  [1m[35m (1.0ms)[0m  BEGIN
+  [1m[36m (5.5ms)[0m  [1mCREATE TABLE "generated_invoices" ("id" serial primary key, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150817071901"]]
+  [1m[36m (0.6ms)[0m  [1mCOMMIT[0m
+Migrating to CreatePredictedInvoices (20150817071910)
+  [1m[35m (1.2ms)[0m  BEGIN
+  [1m[36m (3.9ms)[0m  [1mCREATE TABLE "predicted_invoices" ("id" serial primary key, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.2ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150817071910"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to MakeInvoiceActable (20150817072045)
+  [1m[35m (1.3ms)[0m  BEGIN
+  [1m[36m (0.6ms)[0m  [1mALTER TABLE "invoices" ADD "actable_id" integer[0m
+  [1m[35m (0.5ms)[0m  ALTER TABLE "invoices" ADD "actable_type" character varying
+  [1m[36mSQL (0.2ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150817072045"]]
+  [1m[35m (0.3ms)[0m  COMMIT
+Migrating to MakeMeterPredictorActable (20150818023501)
+  [1m[36m (0.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.5ms)[0m  ALTER TABLE "meter_predictors" ADD "actable_id" integer
+  [1m[36m (2.4ms)[0m  [1mALTER TABLE "meter_predictors" ADD "actable_type" character varying[0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150818023501"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to AddActableToChargeFactory (20150822143534)
+  [1m[35m (0.3ms)[0m  BEGIN
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "charge_factories" ADD "actable_id" integer[0m
+  [1m[35m (0.3ms)[0m  ALTER TABLE "charge_factories" ADD "actable_type" character varying
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150822143534"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to AddChrageFactoryToConcreteCharge (20150825032236)
+  [1m[36m (0.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.5ms)[0m  ALTER TABLE "concrete_charges" ADD "charge_factory_id" integer
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150825032236"]]
+  [1m[35m (0.6ms)[0m  COMMIT
+Migrating to RemoveFk (20150825052847)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.9ms)[0m  ALTER TABLE "daily_usage_charges" DROP "charge_factory_id"
+  [1m[36m (0.7ms)[0m  [1mALTER TABLE "daily_usage_charges" DROP "retail_plan_id"[0m
+  [1m[35m (0.8ms)[0m  ALTER TABLE "retail_plans" DROP "daily_usage_charge_id"
+  [1m[36m (0.7ms)[0m  [1mALTER TABLE "retail_plans" DROP "charge_factory_id"[0m
+  [1m[35m (1.0ms)[0m  ALTER TABLE "global_usage_charges" DROP "charge_factory_id"
+  [1m[36m (1.0ms)[0m  [1mALTER TABLE "metering_charges" DROP "charge_factory_id"[0m
+  [1m[35m (1.0ms)[0m  ALTER TABLE "supply_charges" DROP "charge_factory_id"
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150825052847"]]
+  [1m[35m (0.4ms)[0m  COMMIT
+Migrating to ChangeAttributesInInvoice (20150825111843)
+  [1m[36m (0.4ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.7ms)[0m  ALTER TABLE "invoices" RENAME COLUMN "invoiced_total" TO "total"
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "invoices" DROP "generated_total"[0m
+  [1m[35m (0.5ms)[0m  ALTER TABLE "invoices" DROP "total_loss_factor"
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "invoices" DROP "file"[0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150825111843"]]
+  [1m[36m (0.4ms)[0m  [1mCOMMIT[0m
+Migrating to ChangeAttributesInConcreteCharge (20150825115845)
+  [1m[35m (0.3ms)[0m  BEGIN
+  [1m[36m (0.7ms)[0m  [1mALTER TABLE "concrete_charges" DROP "invoiced_amount"[0m
+  [1m[35m (0.3ms)[0m  ALTER TABLE "concrete_charges" RENAME COLUMN "generated_amount" TO "amount"
+  [1m[36m (0.9ms)[0m  [1mALTER TABLE "concrete_charges" ADD "invoice_type" character varying[0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150825115845"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to AddRetailAccountIdToRetailPlan (20150901045142)
+  [1m[35m (0.4ms)[0m  BEGIN
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "retail_plans" ADD "retail_account_id" integer[0m
+  [1m[35m (0.4ms)[0m  ALTER TABLE "retail_plans" ADD "billing_interval" character varying
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150901045142"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to AddSourceToMeterAggregations (20150901072354)
+  [1m[36m (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35m (12.3ms)[0m  ALTER TABLE meter_aggregations ADD source CHAR(1) DEFAULT 'r';
+  [1m[36mSQL (0.3ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150901072354"]]
+  [1m[35m (1.8ms)[0m  COMMIT
+Migrating to CreateCapacityCharges (20150929041051)
+  [1m[36m (0.5ms)[0m  [1mBEGIN[0m
+  [1m[35m (9.5ms)[0m  CREATE TABLE "capacity_charges" ("id" serial primary key, "period" character varying, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36mSQL (0.4ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150929041051"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to RemoveUnwantedFieldsFromRetailPlan (20150929041429)
+  [1m[36m (1.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (0.7ms)[0m  ALTER TABLE "retail_plans" DROP "retail_account_id"
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "retail_plans" DROP "created"[0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150929041429"]]
+  [1m[36m (0.4ms)[0m  [1mCOMMIT[0m
+Migrating to CreateCertificateCharges (20150929045755)
+  [1m[35m (0.2ms)[0m  BEGIN
+  [1m[36m (3.6ms)[0m  [1mCREATE TABLE "certificate_charges" ("id" serial primary key, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150929045755"]]
+  [1m[36m (0.4ms)[0m  [1mCOMMIT[0m
+Migrating to AddMaximumDemandToMeterAggregations (20150929054629)
+  [1m[35m (1.0ms)[0m  BEGIN
+  [1m[36m (0.7ms)[0m  [1mALTER TABLE "meter_aggregations" ADD "maximum_demand" float[0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20150929054629"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+Migrating to RemovePostgresqlRules (20150929055213)
+  [1m[35m (0.3ms)[0m  BEGIN
+  [1m[36m (1.0ms)[0m  [1mDROP RULE IF EXISTS ignore_duplicate_meter_aggregations on meter_aggregations;[0m
+  [1m[35m (0.8ms)[0m  DROP RULE IF EXISTS ignore_duplicate_meter_records on meter_records;
+  [1m[36mSQL (0.2ms)[0m  [1mINSERT INTO "schema_migrations" ("version") VALUES ($1)[0m  [["version", "20150929055213"]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Migrating to AddUomToCharges (20151001033619)
+  [1m[36m (0.3ms)[0m  [1mBEGIN[0m
+  [1m[35m (2.5ms)[0m  ALTER TABLE "certificate_charges" ADD "unit_of_measurement" character varying
+  [1m[36m (0.5ms)[0m  [1mALTER TABLE "capacity_charges" ADD "unit_of_measurement" character varying[0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20151001033619"]]
+  [1m[36m (0.6ms)[0m  [1mCOMMIT[0m
+Migrating to AddImportedInvoiceIdToGeneratedOne (20151007100914)
+  [1m[35m (0.5ms)[0m  BEGIN
+  [1m[36m (0.8ms)[0m  [1mALTER TABLE "generated_invoices" ADD "imported_invoice_id" integer[0m
+  [1m[35mSQL (0.3ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20151007100914"]]
+  [1m[36m (0.4ms)[0m  [1mCOMMIT[0m
+  [1m[35mActiveRecord::SchemaMigration Load (0.6ms)[0m  SELECT "schema_migrations".* FROM "schema_migrations"
+  [1m[36m (4.9ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'billing_sites'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (3.8ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'capacity_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (4.1ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'certificate_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.3ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'charge_factories'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (4.0ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'concrete_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (3.7ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'daily_usage_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (3.7ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'ftp_servers'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (3.7ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'generated_invoices'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (3.7ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'global_usage_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.7ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'imported_invoices'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (4.4ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'invoices'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.0ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'linear_regression_predictors'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (3.8ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'meter_aggregations'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (3.8ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'meter_predictors'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (3.9ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'meter_records'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.8ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'metering_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (4.6ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'meters'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.3ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'predicted_invoices'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (3.9ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'retail_plans'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.2ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'retailers'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (4.1ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'sites'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[35m (4.5ms)[0m  SELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'supply_charges'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+
+  [1m[36m (5.0ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'users'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+
+
+Started GET "/" for ::1 at 2016-09-29 16:43:21 +1000
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Processing by DashingController#dashboard as HTML
+Completed 401 Unauthorized in 34ms (ActiveRecord: 0.0ms)
+
+
+Started GET "/users/sign_in" for ::1 at 2016-09-29 16:43:21 +1000
+Processing by Devise::SessionsController#new as HTML
+  Rendered devise/shared/_links.html.erb (2.1ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (7904.9ms)
+  Rendered layouts/_notification.html.erb (1.2ms)
+Completed 200 OK in 8379ms (Views: 8356.7ms | ActiveRecord: 8.0ms)
+
+
+Started GET "/" for ::1 at 2016-09-29 16:43:29 +1000
+Processing by DashingController#dashboard as HTML
+Completed 401 Unauthorized in 1ms (ActiveRecord: 0.0ms)
+
+
+Started GET "/users/sign_in" for ::1 at 2016-09-29 16:43:29 +1000
+Processing by Devise::SessionsController#new as HTML
+  Rendered devise/shared/_links.html.erb (0.4ms)
+  Rendered devise/sessions/new.html.erb within layouts/application (8.0ms)
+  Rendered layouts/_notification.html.erb (0.1ms)
+Completed 200 OK in 191ms (Views: 189.9ms | ActiveRecord: 0.0ms)
+
+
+Started GET "/assets/application.self-efcc326c4c83c0a3163f7c22d61c7996f0820c8b3a240b199c75caece752208a.css?body=1" for ::1 at 2016-09-29 16:43:29 +1000
+
+
+Started GET "/assets/jquery.self-bd7ddd393353a8d2480a622e80342adf488fb6006d667e8b42e4c0073393abee.js?body=1" for ::1 at 2016-09-29 16:43:29 +1000
+
+
+Started GET "/assets/jquery_ujs.self-784a997f6726036b1993eb2217c9cb558e1cbb801c6da88105588c56f13b466a.js?body=1" for ::1 at 2016-09-29 16:43:29 +1000
+
+
+Started GET "/assets/turbolinks.self-c5acd7a204f5f25ce7a1d8a0e4d92e28d34c9e2df2c7371cd7af88e147e4ad82.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/toastr.min.self-3225740bec0ff66080f26fc01d336bef6e0307b83b5aa5761f8524d9f7294e3f.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/affix.self-f7aef9d98ee5ece34a6a92a6a15bba777d93e8d908b75c95a85088277f394200.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/button.self-d19f3e2bcd3a7a4d75c11b9141b3fabd2c11987da1e99c85548ec3ecf8db30c3.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/alert.self-896ab026e6823f5cef2441e07dac53d0692a5b772ac58b1ce20aa624c342d3f4.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/carousel.self-b2e5e14483e6c31343a83861b7d487620f143d6fc2d07d5ae7544b6b225ba6be.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/login_stylesheet.self-4cc21ac3105912406cb6484ca07f822595110e2b43a90b915ca121dd87cc6c3b.css?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/collapse.self-93820e9b486e375a7fb4477602def3a6f8381fa6d50938d5378297ffbe4a1248.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/dropdown.self-30536ae4d54b2685c26b5787ed0eb549a9075717fe690cce6270873bedf2df00.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/tab.self-9b77df34cbbb08ec93a806d6cdb741f04e3dbf3389978a0679146f2d2987bc89.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/transition.self-9616c4e856b57659b67da3c6f2adcd584b5601ef4bebcdadab8ebb387d80bb25.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/scrollspy.self-c5c6ed008955656d345067e9821d79f1216b8383134d08465d4aa1a33a2b93b4.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/modal.self-bcfe54f3132bf16a8c5ce4289e47eba488f6522a08f49f378a037061c6c7aa4c.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/tooltip.self-3aa41fbe871573b34e0ebddf31598cd5a11a9841ca85f90934ea46326e46626d.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap/popover.self-b73e9c9111d01148e24bbc46e096782e024dc5db630e7078cf11ed2587ef8551.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-sprockets.self-fbfa5ad7d9aa0afe439ec4ff3883acc4cb92b62cb67c40d674320c9aa1d4642d.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/billing_sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/boostrap.file-input.self-808d7e2fe9c30c69e561fdb43a3b61ea352dda500e0f9df04a2a7713a16ad018.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/dashing.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/ftp_servers.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/invoices.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/meters.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/retail_plans.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/users.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/sb-admin-2.self-3d677525bad46d3fc34a2f4f418b409d9cbf291fcea484b39f70c4865151b2a5.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/metisMenu.self-a0b59a1c98dba94ede1ca717efa162dc4bc8e4db81e52a3d91127e51b810917b.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/moment.self-0da3eb4ebf8fb8c3113d89afb90e5b7a87760d21b5b39a405a51fe05c8e40fd8.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datetimepicker.self-953135ed994cc31cc9cfec48a266ddfc2017dce124e3a2d0503f69d3c31ed8be.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/core.self-57c10ac271cbabce89f4ea96d8248e58dc13bdd3928a468fcbf58dabc5e98db2.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ar.self-3b6d7157be553c75fb586e9bbcb1caf9ffb68b3e52621ce7a0b4d80b3816a41e.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.az.self-e95a3ffa2c92ab9fd1c490585f0664f385a0c529f4b462c4e8f1fab196728f98.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bg.self-962a18198db67ac87d9079f67b2167072ca4588cb77341999c5d6a93334a9143.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bs.self-a9f88ff3048eda7a3915d3bc5fee831813bf64357688ca1d71249f190b5b3c2e.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ca.self-9a18332afeed3b5d913f701e3a5359a3906fac9f8fe0d8271bfa59b17bef3843.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cs.self-d8764534d484a8ad1107f25d5055c72def7515ff37b74002e171bc01791e2569.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cy.self-6269279f98dbec07d08be043c80d3698c8db6da6098298b06c7e9eaca989db3a.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.da.self-3cb1f2509fcef48537941cbfc1e01034b1803fb2a32d1fbccf9eea1d71a3d144.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.de.self-df52cb73f35b10e81c27da3726fedcb47ce944244b37822f2808191f1b699614.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.el.self-c47144f58a0c79632a13f38f22efd1b9f2d077e4d6ed1184c473b92bb0a17383.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-AU.self-6667a122850dd1f2b2e036bdaad22bc82d7fb3d6f24c0eb0ca5455cbdfae2985.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.self-e822658c28f996dd9184e78b590ee770da01e479bc73fdb235b694232278bb4c.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-IE.self-2343c16be658cb33730d4bb5cc188138bfbfff767491792dba7fb6c3feec55f3.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-NZ.self-e7bff6fcdc1f42c430f5244edebec300ec6789167e45ad0d8c919a0d448a85c2.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-ZA.self-549cd856dbe9789814440b4a2b1ed261958a653716f64283cafd91fe41984ce7.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eo.self-bb3c1772c20b81e485802d43cdcda342c29037880fca098f5a82db81c8decae7.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.es.self-842ee703891e9e2578cff08e872f082190b7b443253897c84981fb1241ef1483.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.et.self-8d6af09ae9e4558db67ad818cac5de0451f7a10dc31a6e2987a715562524c44b.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eu.self-0df62f8cfe7e8b05855195ee28292e9cf35ec174cd33f7feac7c62e5e6066bda.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fa.self-20ab53975a47e1cdba4e7a41e0f0c567a2a699d53118ccdf6ea5aae33b692d15.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fi.self-2609765afa68eb2078568f8d785522a588a73222538228637427eac53496df66.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fo.self-fd8c0c500526cb16dd180ba9d832a4e5e0d40c3a570318a73ee2076b32cbbd1a.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr-CH.self-5a3e4840822fb4e6aa55af077ce89acb48e1629c299244258666a9eaf3e16a5f.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr.self-fc22f4a24fd9c64106ee1ffdd8167f9bcbb8544093f9acfd3e78cc79acaaa8ab.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.gl.self-1fccddef3fa899f6fc9f859fb7ea9d5839b554e6ec225bc2c195bd7f67ea55ad.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.he.self-9d26121395049e408a1223d6eeccf625e4969a6a5d52f740af1ad533646e93a4.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hr.self-7e61fabfb46c1eb015b85ee997ba8710aebb4640736f5ac596cfd37f32caab66.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hu.self-f49dd94a82276c26c3441a8f5834842aaff8e1015d2ee90af3a842482685b1b3.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hy.self-519e17fdf49be45e3c787cde8525c882046f51fd063bfc978bc38a37308dc7e9.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.id.self-ea07114145eb6345c3e6b4e0ab99c8dcb42b05e7fc972cbde0997b752895ebc9.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.is.self-eb9734e137173e9c043266c371c2dc6723f896d0d10cd0d9489ab448425352de.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it-CH.self-717fdb47d5142b72e9e7f64eec844ae20deacf76e64b484fc6c52139ea64e607.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it.self-71bbf2309e2ea365c4b4e21bcf5fa9e79bd1fb6aee0a2f097a0439645a79dbf7.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ja.self-cb335efac68187f94ccc34ed07c05f7cf6ace4ae97770209f1e89c92892f0610.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ka.self-b8cf8fca37ec25ed1c3872fed7e439361179491173710ea1dfa3e784e9c5bbd0.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kh.self-9d2694499d40685986d7db3a0fb8145a88ed95a042b4d7b86545493ce3c1201f.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kk.self-4845840e42189e63d0aa4796c6664efe1edc81c9390acfdf1e5514fb91dc294e.js?body=1" for ::1 at 2016-09-29 16:43:30 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ko.self-77411d790ff5bbd9da257d55c4375bc080c3c72222f94abc313f675eeabaedd1.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kr.self-2c4ff027cc32c6144d3460f8e1b848fbc60db128d486ae541883497f289127bb.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lt.self-fc4a3d6ee6a275732e35936f07c8fee862c21064b1471d79be6a50a81627c395.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lv.self-5d8e8777406208ba6d788c14eb94dc6ec161efe23c377bb1688acd8a3dc80c70.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.me.self-bc3ded41fba54540cb7c229e2a81c54e1dc95aa060e13249996c3af17a07d925.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mk.self-2879e14c87c2ed072afa02e973d28c25eccda71604f545f325f5ccb7f9566d9a.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mn.self-9bde9683a01be40a036bf1d3df9376fc1855a9df29248e5604ab8c1926bafe4f.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ms.self-5448409786aef52a30a3fa0309fed12e2972d62f3ffcecd3daad3661d2b3a3bb.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nb.self-bc15d9793637e09369dcc17cc1f76ee50f8fb3bd314b592238db7e107ba9780c.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl-BE.self-8a42d57bf7a5ef08e774ad6ac07ccc42119609f0887a0a9db992a31bc22fb8c8.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl.self-12fa155a1784c9def99d028f7178ab609055cce8de67d75371780172dea6e6ce.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.no.self-835c27d08aa948acba7a496420da4d74da46ffbe5b7b900d927debc46878ceba.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pl.self-bd9ed91cf705ebdec0d35a577541cb18a7b106c255b63b14048b839454783b50.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt-BR.self-c8b0cbc3c837667cc1e12914294f4cc5e3310d82d74031773327f31004772938.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt.self-761e5926a9ad2a08a3931dbecc3f19f9079398de8cd2388f2a193c14d40d7de7.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ro.self-b0f0745b965ffc6c72f79cf8ab7962617897fd538084871b7316538cabf5ab3d.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs-latin.self-9778ded684088fc0d8cd4abcb87572575e59f1027cdbfa98570db215dfed95d0.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs.self-968b0850c75dc75987a4287bd692cad3d074729c3a0f67f92d48cfb6ccd1eac9.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ru.self-4e8d9a4dc60207a247dd0e4d7c0f172c8cd08f8b4f1e8e86dd7384489559aafb.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sk.self-508e59df5ae2738367e9ee26ceb1984620c7d3365d89c500a2f654c73e41c4cc.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sl.self-18b1915d69a94d8c0c7dc954a99ae4786ff2f67d4925370ccb926692fc536885.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sq.self-3224e5dba45c9b9362543f5efe2a02d23b71b7181ea0b7a92fc4637559f17799.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr-latin.self-be5aec102faba5f69237b7bb53843eed7f75c417025cf9105616fe3bea3e3da0.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr.self-0fdd9f114cd83480c0d41f6c4cd9ff5d41984d64f6d7944bd4739f2b9a8b0559.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sv.self-59511a9cf8697e071e3e45937a4ffa74ce67edf099d767fcfcd43544833b639f.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sw.self-6b5e12e322803172a7bb234b38a2774a18b7057caba09bf10e95276875879a35.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.th.self-38ccaf19cff8c13178de6efb294156266bbb5ce6652531d4b53f7f869986ce71.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.tr.self-32d4dcbd80fec4c33ced2cc50217d1cdfe9b351815a939878dedd504f0f29eec.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ua.self-d3090a654f9c3b2ecf04746b1d8616e9fbcd4f6063435f91e76ffd00688684f4.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.uk.self-ba78379f87a0202998faa6e7c5b20476712eb0431e243819807b20ef110db58f.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.vi.self-36dc3fbbffa4afffa02f84c934c42cc69a7b8bf9637967f9d510c3a595c06bfd.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.self-ea1ea635099f9e93b2f5903108a2f939897810d090fa5959545f9cd4ecfaef14.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.self-919520009565c93f98d81b453874a8adc045d992e4cf63904186e82f852e123b.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/index.self-75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/assets/application.self-036edc19c6d0799d92488769039b87c1c0f2a13d5179f852a93ab92fe194898e.js?body=1" for ::1 at 2016-09-29 16:43:31 +1000
+
+
+Started GET "/users/sign_up" for ::1 at 2016-09-29 16:43:38 +1000
+Processing by Users::RegistrationsController#new as HTML
+  Rendered devise/registrations/new.html.erb within layouts/application (4.7ms)
+  Rendered layouts/_notification.html.erb (0.2ms)
+Completed 200 OK in 262ms (Views: 260.0ms | ActiveRecord: 0.0ms)
+
+
+Started POST "/users" for ::1 at 2016-09-29 16:43:56 +1000
+Processing by Users::RegistrationsController#create as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"BB9LqnYwV1YrfMyfH2mu+sL64lXfE58v540U3qp2LBAJz8ZMJGgJ7qxl2lVcPuS5M/PwZw/WLaaqCwZIjfjLEA==", "user"=>{"email"=>"123@123.cpm", "password"=>"[FILTERED]", "password_confirmation"=>"[FILTERED]", "name"=>"123"}, "commit"=>"Sign up"}
+  [1m[35m (0.4ms)[0m  BEGIN
+  [1m[36mUser Exists (3.2ms)[0m  [1mSELECT  1 AS one FROM "users" WHERE "users"."email" = '123@123.cpm' LIMIT 1[0m
+  [1m[35mSQL (1.4ms)[0m  INSERT INTO "users" ("email", "encrypted_password", "name", "created_at", "updated_at") VALUES ($1, $2, $3, $4, $5) RETURNING "id"  [["email", "123@123.cpm"], ["encrypted_password", "$2a$10$rHkYcC/uaxL1FsIVYuMnguJxqOZbXzBPTgQp9gCNm9XCspCJPsFz2"], ["name", "123"], ["created_at", "2016-09-29 16:43:57.145824"], ["updated_at", "2016-09-29 16:43:57.145824"]]
+  [1m[36m (0.6ms)[0m  [1mCOMMIT[0m
+  [1m[35m (0.3ms)[0m  BEGIN
+  [1m[36mSQL (0.9ms)[0m  [1mUPDATE "users" SET "last_sign_in_at" = $1, "current_sign_in_at" = $2, "last_sign_in_ip" = $3, "current_sign_in_ip" = $4, "sign_in_count" = $5, "updated_at" = $6 WHERE "users"."id" = $7[0m  [["last_sign_in_at", "2016-09-29 16:43:57.151636"], ["current_sign_in_at", "2016-09-29 16:43:57.151636"], ["last_sign_in_ip", "::1/128"], ["current_sign_in_ip", "::1/128"], ["sign_in_count", 1], ["updated_at", "2016-09-29 16:43:57.153232"], ["id", 1]]
+  [1m[35m (0.5ms)[0m  COMMIT
+Redirected to http://localhost:3000/
+Completed 302 Found in 198ms (ActiveRecord: 7.5ms)
+
+
+Started GET "/" for ::1 at 2016-09-29 16:43:57 +1000
+Processing by DashingController#dashboard as HTML
+  [1m[36mUser Load (0.5ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+  Rendered dashing/dashboard.html.erb within layouts/application (0.6ms)
+  Rendered layouts/_notification.html.erb (0.3ms)
+  Rendered layouts/_header.html.erb (1.0ms)
+  [1m[35mSite Load (1.2ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (85.3ms)
+Completed 200 OK in 352ms (Views: 344.6ms | ActiveRecord: 4.8ms)
+
+
+Started GET "/assets/fontawesome-webfont-3c4a1bb7ce3234407184f0d80cc4dec075e4ad616b44dcc5778e1cfb1bc24019.woff2?v=4.4.0" for ::1 at 2016-09-29 16:43:57 +1000
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 16:44:02 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[36mUser Load (0.6ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (1.0ms)
+  Rendered layouts/_notification.html.erb (0.2ms)
+  Rendered layouts/_header.html.erb (0.4ms)
+  [1m[35mSite Load (0.4ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (2.1ms)
+Completed 200 OK in 286ms (Views: 283.3ms | ActiveRecord: 1.1ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 16:46:47 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[36mUser Load (0.8ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (2.0ms)
+  Rendered layouts/_notification.html.erb (0.2ms)
+  Rendered layouts/_header.html.erb (0.5ms)
+  [1m[35mSite Load (0.6ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (2.9ms)
+Completed 200 OK in 322ms (Views: 317.6ms | ActiveRecord: 1.4ms)
+
+
+Started GET "/assets/application.self-efcc326c4c83c0a3163f7c22d61c7996f0820c8b3a240b199c75caece752208a.css?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/jquery.self-bd7ddd393353a8d2480a622e80342adf488fb6006d667e8b42e4c0073393abee.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/turbolinks.self-c5acd7a204f5f25ce7a1d8a0e4d92e28d34c9e2df2c7371cd7af88e147e4ad82.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/affix.self-f7aef9d98ee5ece34a6a92a6a15bba777d93e8d908b75c95a85088277f394200.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/jquery_ujs.self-784a997f6726036b1993eb2217c9cb558e1cbb801c6da88105588c56f13b466a.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/toastr.min.self-3225740bec0ff66080f26fc01d336bef6e0307b83b5aa5761f8524d9f7294e3f.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/alert.self-896ab026e6823f5cef2441e07dac53d0692a5b772ac58b1ce20aa624c342d3f4.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/button.self-d19f3e2bcd3a7a4d75c11b9141b3fabd2c11987da1e99c85548ec3ecf8db30c3.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/carousel.self-b2e5e14483e6c31343a83861b7d487620f143d6fc2d07d5ae7544b6b225ba6be.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/dropdown.self-30536ae4d54b2685c26b5787ed0eb549a9075717fe690cce6270873bedf2df00.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/tab.self-9b77df34cbbb08ec93a806d6cdb741f04e3dbf3389978a0679146f2d2987bc89.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/collapse.self-93820e9b486e375a7fb4477602def3a6f8381fa6d50938d5378297ffbe4a1248.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/transition.self-9616c4e856b57659b67da3c6f2adcd584b5601ef4bebcdadab8ebb387d80bb25.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/scrollspy.self-c5c6ed008955656d345067e9821d79f1216b8383134d08465d4aa1a33a2b93b4.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/modal.self-bcfe54f3132bf16a8c5ce4289e47eba488f6522a08f49f378a037061c6c7aa4c.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/tooltip.self-3aa41fbe871573b34e0ebddf31598cd5a11a9841ca85f90934ea46326e46626d.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap/popover.self-b73e9c9111d01148e24bbc46e096782e024dc5db630e7078cf11ed2587ef8551.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-sprockets.self-fbfa5ad7d9aa0afe439ec4ff3883acc4cb92b62cb67c40d674320c9aa1d4642d.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/billing_sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/boostrap.file-input.self-808d7e2fe9c30c69e561fdb43a3b61ea352dda500e0f9df04a2a7713a16ad018.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/dashing.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/ftp_servers.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/invoices.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/meters.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/retail_plans.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/users.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/sb-admin-2.self-3d677525bad46d3fc34a2f4f418b409d9cbf291fcea484b39f70c4865151b2a5.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/metisMenu.self-a0b59a1c98dba94ede1ca717efa162dc4bc8e4db81e52a3d91127e51b810917b.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/moment.self-0da3eb4ebf8fb8c3113d89afb90e5b7a87760d21b5b39a405a51fe05c8e40fd8.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datetimepicker.self-953135ed994cc31cc9cfec48a266ddfc2017dce124e3a2d0503f69d3c31ed8be.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/core.self-57c10ac271cbabce89f4ea96d8248e58dc13bdd3928a468fcbf58dabc5e98db2.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ar.self-3b6d7157be553c75fb586e9bbcb1caf9ffb68b3e52621ce7a0b4d80b3816a41e.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.az.self-e95a3ffa2c92ab9fd1c490585f0664f385a0c529f4b462c4e8f1fab196728f98.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bg.self-962a18198db67ac87d9079f67b2167072ca4588cb77341999c5d6a93334a9143.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ca.self-9a18332afeed3b5d913f701e3a5359a3906fac9f8fe0d8271bfa59b17bef3843.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bs.self-a9f88ff3048eda7a3915d3bc5fee831813bf64357688ca1d71249f190b5b3c2e.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cs.self-d8764534d484a8ad1107f25d5055c72def7515ff37b74002e171bc01791e2569.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cy.self-6269279f98dbec07d08be043c80d3698c8db6da6098298b06c7e9eaca989db3a.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.de.self-df52cb73f35b10e81c27da3726fedcb47ce944244b37822f2808191f1b699614.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.da.self-3cb1f2509fcef48537941cbfc1e01034b1803fb2a32d1fbccf9eea1d71a3d144.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.el.self-c47144f58a0c79632a13f38f22efd1b9f2d077e4d6ed1184c473b92bb0a17383.js?body=1" for ::1 at 2016-09-29 16:46:48 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-AU.self-6667a122850dd1f2b2e036bdaad22bc82d7fb3d6f24c0eb0ca5455cbdfae2985.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.self-e822658c28f996dd9184e78b590ee770da01e479bc73fdb235b694232278bb4c.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-IE.self-2343c16be658cb33730d4bb5cc188138bfbfff767491792dba7fb6c3feec55f3.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-NZ.self-e7bff6fcdc1f42c430f5244edebec300ec6789167e45ad0d8c919a0d448a85c2.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-ZA.self-549cd856dbe9789814440b4a2b1ed261958a653716f64283cafd91fe41984ce7.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eo.self-bb3c1772c20b81e485802d43cdcda342c29037880fca098f5a82db81c8decae7.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.es.self-842ee703891e9e2578cff08e872f082190b7b443253897c84981fb1241ef1483.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.et.self-8d6af09ae9e4558db67ad818cac5de0451f7a10dc31a6e2987a715562524c44b.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eu.self-0df62f8cfe7e8b05855195ee28292e9cf35ec174cd33f7feac7c62e5e6066bda.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fa.self-20ab53975a47e1cdba4e7a41e0f0c567a2a699d53118ccdf6ea5aae33b692d15.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fi.self-2609765afa68eb2078568f8d785522a588a73222538228637427eac53496df66.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fo.self-fd8c0c500526cb16dd180ba9d832a4e5e0d40c3a570318a73ee2076b32cbbd1a.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr-CH.self-5a3e4840822fb4e6aa55af077ce89acb48e1629c299244258666a9eaf3e16a5f.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr.self-fc22f4a24fd9c64106ee1ffdd8167f9bcbb8544093f9acfd3e78cc79acaaa8ab.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.gl.self-1fccddef3fa899f6fc9f859fb7ea9d5839b554e6ec225bc2c195bd7f67ea55ad.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.he.self-9d26121395049e408a1223d6eeccf625e4969a6a5d52f740af1ad533646e93a4.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hr.self-7e61fabfb46c1eb015b85ee997ba8710aebb4640736f5ac596cfd37f32caab66.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hu.self-f49dd94a82276c26c3441a8f5834842aaff8e1015d2ee90af3a842482685b1b3.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hy.self-519e17fdf49be45e3c787cde8525c882046f51fd063bfc978bc38a37308dc7e9.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.id.self-ea07114145eb6345c3e6b4e0ab99c8dcb42b05e7fc972cbde0997b752895ebc9.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.is.self-eb9734e137173e9c043266c371c2dc6723f896d0d10cd0d9489ab448425352de.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it-CH.self-717fdb47d5142b72e9e7f64eec844ae20deacf76e64b484fc6c52139ea64e607.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it.self-71bbf2309e2ea365c4b4e21bcf5fa9e79bd1fb6aee0a2f097a0439645a79dbf7.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ja.self-cb335efac68187f94ccc34ed07c05f7cf6ace4ae97770209f1e89c92892f0610.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ka.self-b8cf8fca37ec25ed1c3872fed7e439361179491173710ea1dfa3e784e9c5bbd0.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kh.self-9d2694499d40685986d7db3a0fb8145a88ed95a042b4d7b86545493ce3c1201f.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kk.self-4845840e42189e63d0aa4796c6664efe1edc81c9390acfdf1e5514fb91dc294e.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ko.self-77411d790ff5bbd9da257d55c4375bc080c3c72222f94abc313f675eeabaedd1.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kr.self-2c4ff027cc32c6144d3460f8e1b848fbc60db128d486ae541883497f289127bb.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lt.self-fc4a3d6ee6a275732e35936f07c8fee862c21064b1471d79be6a50a81627c395.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lv.self-5d8e8777406208ba6d788c14eb94dc6ec161efe23c377bb1688acd8a3dc80c70.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.me.self-bc3ded41fba54540cb7c229e2a81c54e1dc95aa060e13249996c3af17a07d925.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mk.self-2879e14c87c2ed072afa02e973d28c25eccda71604f545f325f5ccb7f9566d9a.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mn.self-9bde9683a01be40a036bf1d3df9376fc1855a9df29248e5604ab8c1926bafe4f.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ms.self-5448409786aef52a30a3fa0309fed12e2972d62f3ffcecd3daad3661d2b3a3bb.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nb.self-bc15d9793637e09369dcc17cc1f76ee50f8fb3bd314b592238db7e107ba9780c.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl-BE.self-8a42d57bf7a5ef08e774ad6ac07ccc42119609f0887a0a9db992a31bc22fb8c8.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl.self-12fa155a1784c9def99d028f7178ab609055cce8de67d75371780172dea6e6ce.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.no.self-835c27d08aa948acba7a496420da4d74da46ffbe5b7b900d927debc46878ceba.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pl.self-bd9ed91cf705ebdec0d35a577541cb18a7b106c255b63b14048b839454783b50.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt-BR.self-c8b0cbc3c837667cc1e12914294f4cc5e3310d82d74031773327f31004772938.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt.self-761e5926a9ad2a08a3931dbecc3f19f9079398de8cd2388f2a193c14d40d7de7.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ro.self-b0f0745b965ffc6c72f79cf8ab7962617897fd538084871b7316538cabf5ab3d.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs-latin.self-9778ded684088fc0d8cd4abcb87572575e59f1027cdbfa98570db215dfed95d0.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs.self-968b0850c75dc75987a4287bd692cad3d074729c3a0f67f92d48cfb6ccd1eac9.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ru.self-4e8d9a4dc60207a247dd0e4d7c0f172c8cd08f8b4f1e8e86dd7384489559aafb.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sk.self-508e59df5ae2738367e9ee26ceb1984620c7d3365d89c500a2f654c73e41c4cc.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sl.self-18b1915d69a94d8c0c7dc954a99ae4786ff2f67d4925370ccb926692fc536885.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sq.self-3224e5dba45c9b9362543f5efe2a02d23b71b7181ea0b7a92fc4637559f17799.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr-latin.self-be5aec102faba5f69237b7bb53843eed7f75c417025cf9105616fe3bea3e3da0.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr.self-0fdd9f114cd83480c0d41f6c4cd9ff5d41984d64f6d7944bd4739f2b9a8b0559.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sv.self-59511a9cf8697e071e3e45937a4ffa74ce67edf099d767fcfcd43544833b639f.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sw.self-6b5e12e322803172a7bb234b38a2774a18b7057caba09bf10e95276875879a35.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.th.self-38ccaf19cff8c13178de6efb294156266bbb5ce6652531d4b53f7f869986ce71.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.tr.self-32d4dcbd80fec4c33ced2cc50217d1cdfe9b351815a939878dedd504f0f29eec.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ua.self-d3090a654f9c3b2ecf04746b1d8616e9fbcd4f6063435f91e76ffd00688684f4.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.uk.self-ba78379f87a0202998faa6e7c5b20476712eb0431e243819807b20ef110db58f.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.vi.self-36dc3fbbffa4afffa02f84c934c42cc69a7b8bf9637967f9d510c3a595c06bfd.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.self-ea1ea635099f9e93b2f5903108a2f939897810d090fa5959545f9cd4ecfaef14.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.self-919520009565c93f98d81b453874a8adc045d992e4cf63904186e82f852e123b.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/index.self-75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/application.self-036edc19c6d0799d92488769039b87c1c0f2a13d5179f852a93ab92fe194898e.js?body=1" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/assets/fontawesome-webfont-3c4a1bb7ce3234407184f0d80cc4dec075e4ad616b44dcc5778e1cfb1bc24019.woff2?v=4.4.0" for ::1 at 2016-09-29 16:46:49 +1000
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 16:46:50 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[36mUser Load (0.6ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (1.1ms)
+  Rendered layouts/_notification.html.erb (0.1ms)
+  Rendered layouts/_header.html.erb (0.5ms)
+  [1m[35mSite Load (0.5ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (3.0ms)
+Completed 200 OK in 285ms (Views: 282.4ms | ActiveRecord: 1.2ms)
+
+
+Started GET "/assets/application.self-efcc326c4c83c0a3163f7c22d61c7996f0820c8b3a240b199c75caece752208a.css?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/turbolinks.self-c5acd7a204f5f25ce7a1d8a0e4d92e28d34c9e2df2c7371cd7af88e147e4ad82.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/toastr.min.self-3225740bec0ff66080f26fc01d336bef6e0307b83b5aa5761f8524d9f7294e3f.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/jquery_ujs.self-784a997f6726036b1993eb2217c9cb558e1cbb801c6da88105588c56f13b466a.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/affix.self-f7aef9d98ee5ece34a6a92a6a15bba777d93e8d908b75c95a85088277f394200.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/jquery.self-bd7ddd393353a8d2480a622e80342adf488fb6006d667e8b42e4c0073393abee.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/button.self-d19f3e2bcd3a7a4d75c11b9141b3fabd2c11987da1e99c85548ec3ecf8db30c3.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/carousel.self-b2e5e14483e6c31343a83861b7d487620f143d6fc2d07d5ae7544b6b225ba6be.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/alert.self-896ab026e6823f5cef2441e07dac53d0692a5b772ac58b1ce20aa624c342d3f4.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/dropdown.self-30536ae4d54b2685c26b5787ed0eb549a9075717fe690cce6270873bedf2df00.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/collapse.self-93820e9b486e375a7fb4477602def3a6f8381fa6d50938d5378297ffbe4a1248.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/tab.self-9b77df34cbbb08ec93a806d6cdb741f04e3dbf3389978a0679146f2d2987bc89.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/transition.self-9616c4e856b57659b67da3c6f2adcd584b5601ef4bebcdadab8ebb387d80bb25.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/scrollspy.self-c5c6ed008955656d345067e9821d79f1216b8383134d08465d4aa1a33a2b93b4.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/modal.self-bcfe54f3132bf16a8c5ce4289e47eba488f6522a08f49f378a037061c6c7aa4c.js?body=1" for ::1 at 2016-09-29 16:46:50 +1000
+
+
+Started GET "/assets/bootstrap/tooltip.self-3aa41fbe871573b34e0ebddf31598cd5a11a9841ca85f90934ea46326e46626d.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap/popover.self-b73e9c9111d01148e24bbc46e096782e024dc5db630e7078cf11ed2587ef8551.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-sprockets.self-fbfa5ad7d9aa0afe439ec4ff3883acc4cb92b62cb67c40d674320c9aa1d4642d.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/billing_sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/boostrap.file-input.self-808d7e2fe9c30c69e561fdb43a3b61ea352dda500e0f9df04a2a7713a16ad018.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/dashing.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/ftp_servers.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/invoices.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/meters.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/retail_plans.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/users.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/sb-admin-2.self-3d677525bad46d3fc34a2f4f418b409d9cbf291fcea484b39f70c4865151b2a5.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/metisMenu.self-a0b59a1c98dba94ede1ca717efa162dc4bc8e4db81e52a3d91127e51b810917b.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/moment.self-0da3eb4ebf8fb8c3113d89afb90e5b7a87760d21b5b39a405a51fe05c8e40fd8.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datetimepicker.self-953135ed994cc31cc9cfec48a266ddfc2017dce124e3a2d0503f69d3c31ed8be.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/core.self-57c10ac271cbabce89f4ea96d8248e58dc13bdd3928a468fcbf58dabc5e98db2.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.az.self-e95a3ffa2c92ab9fd1c490585f0664f385a0c529f4b462c4e8f1fab196728f98.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bg.self-962a18198db67ac87d9079f67b2167072ca4588cb77341999c5d6a93334a9143.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bs.self-a9f88ff3048eda7a3915d3bc5fee831813bf64357688ca1d71249f190b5b3c2e.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ar.self-3b6d7157be553c75fb586e9bbcb1caf9ffb68b3e52621ce7a0b4d80b3816a41e.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ca.self-9a18332afeed3b5d913f701e3a5359a3906fac9f8fe0d8271bfa59b17bef3843.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cs.self-d8764534d484a8ad1107f25d5055c72def7515ff37b74002e171bc01791e2569.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cy.self-6269279f98dbec07d08be043c80d3698c8db6da6098298b06c7e9eaca989db3a.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.da.self-3cb1f2509fcef48537941cbfc1e01034b1803fb2a32d1fbccf9eea1d71a3d144.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.de.self-df52cb73f35b10e81c27da3726fedcb47ce944244b37822f2808191f1b699614.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.el.self-c47144f58a0c79632a13f38f22efd1b9f2d077e4d6ed1184c473b92bb0a17383.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-AU.self-6667a122850dd1f2b2e036bdaad22bc82d7fb3d6f24c0eb0ca5455cbdfae2985.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.self-e822658c28f996dd9184e78b590ee770da01e479bc73fdb235b694232278bb4c.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-IE.self-2343c16be658cb33730d4bb5cc188138bfbfff767491792dba7fb6c3feec55f3.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-NZ.self-e7bff6fcdc1f42c430f5244edebec300ec6789167e45ad0d8c919a0d448a85c2.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-ZA.self-549cd856dbe9789814440b4a2b1ed261958a653716f64283cafd91fe41984ce7.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eo.self-bb3c1772c20b81e485802d43cdcda342c29037880fca098f5a82db81c8decae7.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.es.self-842ee703891e9e2578cff08e872f082190b7b443253897c84981fb1241ef1483.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.et.self-8d6af09ae9e4558db67ad818cac5de0451f7a10dc31a6e2987a715562524c44b.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eu.self-0df62f8cfe7e8b05855195ee28292e9cf35ec174cd33f7feac7c62e5e6066bda.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fa.self-20ab53975a47e1cdba4e7a41e0f0c567a2a699d53118ccdf6ea5aae33b692d15.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fi.self-2609765afa68eb2078568f8d785522a588a73222538228637427eac53496df66.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fo.self-fd8c0c500526cb16dd180ba9d832a4e5e0d40c3a570318a73ee2076b32cbbd1a.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr-CH.self-5a3e4840822fb4e6aa55af077ce89acb48e1629c299244258666a9eaf3e16a5f.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr.self-fc22f4a24fd9c64106ee1ffdd8167f9bcbb8544093f9acfd3e78cc79acaaa8ab.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.gl.self-1fccddef3fa899f6fc9f859fb7ea9d5839b554e6ec225bc2c195bd7f67ea55ad.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.he.self-9d26121395049e408a1223d6eeccf625e4969a6a5d52f740af1ad533646e93a4.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hr.self-7e61fabfb46c1eb015b85ee997ba8710aebb4640736f5ac596cfd37f32caab66.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hu.self-f49dd94a82276c26c3441a8f5834842aaff8e1015d2ee90af3a842482685b1b3.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hy.self-519e17fdf49be45e3c787cde8525c882046f51fd063bfc978bc38a37308dc7e9.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.id.self-ea07114145eb6345c3e6b4e0ab99c8dcb42b05e7fc972cbde0997b752895ebc9.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.is.self-eb9734e137173e9c043266c371c2dc6723f896d0d10cd0d9489ab448425352de.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it-CH.self-717fdb47d5142b72e9e7f64eec844ae20deacf76e64b484fc6c52139ea64e607.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it.self-71bbf2309e2ea365c4b4e21bcf5fa9e79bd1fb6aee0a2f097a0439645a79dbf7.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ja.self-cb335efac68187f94ccc34ed07c05f7cf6ace4ae97770209f1e89c92892f0610.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ka.self-b8cf8fca37ec25ed1c3872fed7e439361179491173710ea1dfa3e784e9c5bbd0.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kh.self-9d2694499d40685986d7db3a0fb8145a88ed95a042b4d7b86545493ce3c1201f.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kk.self-4845840e42189e63d0aa4796c6664efe1edc81c9390acfdf1e5514fb91dc294e.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ko.self-77411d790ff5bbd9da257d55c4375bc080c3c72222f94abc313f675eeabaedd1.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kr.self-2c4ff027cc32c6144d3460f8e1b848fbc60db128d486ae541883497f289127bb.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lt.self-fc4a3d6ee6a275732e35936f07c8fee862c21064b1471d79be6a50a81627c395.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lv.self-5d8e8777406208ba6d788c14eb94dc6ec161efe23c377bb1688acd8a3dc80c70.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mk.self-2879e14c87c2ed072afa02e973d28c25eccda71604f545f325f5ccb7f9566d9a.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mn.self-9bde9683a01be40a036bf1d3df9376fc1855a9df29248e5604ab8c1926bafe4f.js?body=1" for ::1 at 2016-09-29 16:46:51 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.me.self-bc3ded41fba54540cb7c229e2a81c54e1dc95aa060e13249996c3af17a07d925.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ms.self-5448409786aef52a30a3fa0309fed12e2972d62f3ffcecd3daad3661d2b3a3bb.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nb.self-bc15d9793637e09369dcc17cc1f76ee50f8fb3bd314b592238db7e107ba9780c.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl-BE.self-8a42d57bf7a5ef08e774ad6ac07ccc42119609f0887a0a9db992a31bc22fb8c8.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl.self-12fa155a1784c9def99d028f7178ab609055cce8de67d75371780172dea6e6ce.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.no.self-835c27d08aa948acba7a496420da4d74da46ffbe5b7b900d927debc46878ceba.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pl.self-bd9ed91cf705ebdec0d35a577541cb18a7b106c255b63b14048b839454783b50.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt-BR.self-c8b0cbc3c837667cc1e12914294f4cc5e3310d82d74031773327f31004772938.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt.self-761e5926a9ad2a08a3931dbecc3f19f9079398de8cd2388f2a193c14d40d7de7.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ro.self-b0f0745b965ffc6c72f79cf8ab7962617897fd538084871b7316538cabf5ab3d.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs-latin.self-9778ded684088fc0d8cd4abcb87572575e59f1027cdbfa98570db215dfed95d0.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs.self-968b0850c75dc75987a4287bd692cad3d074729c3a0f67f92d48cfb6ccd1eac9.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sk.self-508e59df5ae2738367e9ee26ceb1984620c7d3365d89c500a2f654c73e41c4cc.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ru.self-4e8d9a4dc60207a247dd0e4d7c0f172c8cd08f8b4f1e8e86dd7384489559aafb.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sl.self-18b1915d69a94d8c0c7dc954a99ae4786ff2f67d4925370ccb926692fc536885.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sq.self-3224e5dba45c9b9362543f5efe2a02d23b71b7181ea0b7a92fc4637559f17799.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr-latin.self-be5aec102faba5f69237b7bb53843eed7f75c417025cf9105616fe3bea3e3da0.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr.self-0fdd9f114cd83480c0d41f6c4cd9ff5d41984d64f6d7944bd4739f2b9a8b0559.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sv.self-59511a9cf8697e071e3e45937a4ffa74ce67edf099d767fcfcd43544833b639f.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sw.self-6b5e12e322803172a7bb234b38a2774a18b7057caba09bf10e95276875879a35.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.th.self-38ccaf19cff8c13178de6efb294156266bbb5ce6652531d4b53f7f869986ce71.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.tr.self-32d4dcbd80fec4c33ced2cc50217d1cdfe9b351815a939878dedd504f0f29eec.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ua.self-d3090a654f9c3b2ecf04746b1d8616e9fbcd4f6063435f91e76ffd00688684f4.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.uk.self-ba78379f87a0202998faa6e7c5b20476712eb0431e243819807b20ef110db58f.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.vi.self-36dc3fbbffa4afffa02f84c934c42cc69a7b8bf9637967f9d510c3a595c06bfd.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.self-ea1ea635099f9e93b2f5903108a2f939897810d090fa5959545f9cd4ecfaef14.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.self-919520009565c93f98d81b453874a8adc045d992e4cf63904186e82f852e123b.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/index.self-75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/application.self-036edc19c6d0799d92488769039b87c1c0f2a13d5179f852a93ab92fe194898e.js?body=1" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started GET "/assets/fontawesome-webfont-3c4a1bb7ce3234407184f0d80cc4dec075e4ad616b44dcc5778e1cfb1bc24019.woff2?v=4.4.0" for ::1 at 2016-09-29 16:46:52 +1000
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 16:50:03 +1000
+
+SyntaxError (/Users/Keran/Workspace/steam/app/controllers/users_controller.rb:37: syntax error, unexpected keyword_when, expecting keyword_end
+          when '.jpg'
+              ^
+/Users/Keran/Workspace/steam/app/controllers/users_controller.rb:59: syntax error, unexpected keyword_end, expecting end-of-input):
+  app/controllers/users_controller.rb:37: syntax error, unexpected keyword_when, expecting keyword_end
+  app/controllers/users_controller.rb:59: syntax error, unexpected keyword_end, expecting end-of-input
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_source.erb (5.0ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (3.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.1ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (84.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (1.1ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (72.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (161.1ms)
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 16:51:08 +1000
+
+SyntaxError (/Users/Keran/Workspace/steam/app/controllers/users_controller.rb:60: syntax error, unexpected keyword_end, expecting end-of-input):
+  app/controllers/users_controller.rb:60: syntax error, unexpected keyword_end, expecting end-of-input
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_source.erb (4.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (2.0ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (3.2ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (69.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (54.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (122.3ms)
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 16:51:30 +1000
+Processing by UsersController#import_nem12 as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"vMW1OlzqrwJxMJLhg6XztEazCmj5tFYOG19KbjbRakCxFTjcDrLxuvYphCvA8rn3t7oYWilx5IdW2Vj4EV+NQA==", "files"=>[#<ActionDispatch::Http::UploadedFile:0x007fadd4e2f980 @tempfile=#<Tempfile:/var/folders/6d/q77k0tjn5mg0mplk_39ckc740000gn/T/RackMultipart20160929-46758-195z1lv.jpg>, @original_filename="iOS5.jpg", @content_type="image/jpeg", @headers="Content-Disposition: form-data; name=\"files[]\"; filename=\"iOS5.jpg\"\r\nContent-Type: image/jpeg\r\n">], "commit"=>"123Import"}
+  [1m[36mUser Load (0.7ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+Redirected to http://localhost:3000/users/import
+Completed 302 Found in 29ms (ActiveRecord: 6.6ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 16:51:30 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[35mUser Load (0.7ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (0.6ms)
+  Rendered layouts/_notification.html.erb (0.2ms)
+  Rendered layouts/_header.html.erb (0.4ms)
+  [1m[36mSite Load (0.5ms)[0m  [1mSELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC[0m  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (11.9ms)
+Completed 200 OK in 307ms (Views: 301.6ms | ActiveRecord: 2.7ms)
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 16:56:07 +1000
+Processing by UsersController#import_nem12 as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"DLkVcHeHBueHNKzU176p4AR6l6PxsPVnBdRJAFOTsrwBaZiWJd9YXwAtuh6U6eOj9XOFkSF1R+5IUluWdB1VvA==", "files"=>[#<ActionDispatch::Http::UploadedFile:0x007fadd314dba0 @tempfile=#<Tempfile:/var/folders/6d/q77k0tjn5mg0mplk_39ckc740000gn/T/RackMultipart20160929-46758-se82sc.csv>, @original_filename="eee.csv", @content_type="text/csv", @headers="Content-Disposition: form-data; name=\"files[]\"; filename=\"eee.csv\"\r\nContent-Type: text/csv\r\n">], "commit"=>"123Import"}
+  [1m[35mUser Load (0.5ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  [1m[36mMeter Load (2.0ms)[0m  [1mSELECT "meters".* FROM "meters" INNER JOIN "billing_sites" ON "meters"."billing_site_id" = "billing_sites"."id" INNER JOIN "sites" ON "billing_sites"."site_id" = "sites"."id" WHERE "sites"."user_id" = $1[0m  [["user_id", 1]]
+Completed 500 Internal Server Error in 108ms (ActiveRecord: 5.6ms)
+
+SyntaxError (/Users/Keran/Workspace/steam/app/models/meter_record.rb:528: syntax error, unexpected keyword_end, expecting end-of-input):
+  app/models/meter_record.rb:528: syntax error, unexpected keyword_end, expecting end-of-input
+  app/models/meter.rb:261:in `import_nem12'
+  app/controllers/users_controller.rb:35:in `block in import_nem12'
+  app/controllers/users_controller.rb:23:in `each'
+  app/controllers/users_controller.rb:23:in `import_nem12'
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_source.erb (6.2ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (4.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.1ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/diagnostics.html.erb within rescues/layout (69.9ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (0.7ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (61.1ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (141.4ms)
+
+
+Started GET "/ftp_servers" for ::1 at 2016-09-29 17:02:33 +1000
+Processing by FtpServersController#index as HTML
+  [1m[35mUser Load (0.5ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  [1m[36mFtpServer Load (1.3ms)[0m  [1mSELECT "ftp_servers".* FROM "ftp_servers" WHERE "ftp_servers"."user_id" = $1[0m  [["user_id", 1]]
+  Rendered ftp_servers/index.html.erb within layouts/application (5.3ms)
+  Rendered layouts/_notification.html.erb (0.3ms)
+  Rendered layouts/_header.html.erb (0.6ms)
+  [1m[35mSite Load (0.7ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (2.6ms)
+Completed 200 OK in 313ms (Views: 279.8ms | ActiveRecord: 5.1ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:02:39 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (1.4ms)
+  Rendered layouts/_notification.html.erb (0.1ms)
+  Rendered layouts/_header.html.erb (0.3ms)
+  [1m[35mSite Load (0.7ms)[0m  SELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (2.9ms)
+Completed 200 OK in 239ms (Views: 236.4ms | ActiveRecord: 1.1ms)
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 17:04:10 +1000
+Processing by UsersController#import_nem12 as HTML
+  Parameters: {"utf8"=>"✓", "authenticity_token"=>"9ZJVqqGnzsphdjat8V8F8iYKhQWmkwPacCFiBPT42WP4QthM8/+QcuZvIGeyCE+x1wOXN3ZWsVM9p3CS03Y+Yw==", "files"=>[#<ActionDispatch::Http::UploadedFile:0x007fadd4e3d968 @tempfile=#<Tempfile:/var/folders/6d/q77k0tjn5mg0mplk_39ckc740000gn/T/RackMultipart20160929-46758-10211q8.txt>, @original_filename="111.txt", @content_type="text/plain", @headers="Content-Disposition: form-data; name=\"files[]\"; filename=\"111.txt\"\r\nContent-Type: text/plain\r\n">], "commit"=>"Import"}
+  [1m[36mUser Load (0.4ms)[0m  [1mSELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1[0m  [["id", 1]]
+Redirected to http://localhost:3000/users/import
+Completed 302 Found in 19ms (ActiveRecord: 4.7ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:04:10 +1000
+
+ActionController::RoutingError (No route matches [GET] "/users/import"):
+  actionpack (4.2.1) lib/action_dispatch/middleware/debug_exceptions.rb:21:in `call'
+  web-console (2.3.0) lib/web_console/middleware.rb:28:in `block in call'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `catch'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/show_exceptions.rb:30:in `call'
+  railties (4.2.1) lib/rails/rack/logger.rb:38:in `call_app'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `block in call'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `block in tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:26:in `tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `tagged'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/request_id.rb:21:in `call'
+  rack (1.6.4) lib/rack/methodoverride.rb:22:in `call'
+  rack (1.6.4) lib/rack/runtime.rb:18:in `call'
+  activesupport (4.2.1) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/static.rb:113:in `call'
+  rack (1.6.4) lib/rack/sendfile.rb:113:in `call'
+  railties (4.2.1) lib/rails/engine.rb:518:in `call'
+  railties (4.2.1) lib/rails/application.rb:164:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  rack (1.6.4) lib/rack/content_length.rb:15:in `call'
+  rack (1.6.4) lib/rack/handler/webrick.rb:88:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:138:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:94:in `run'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/server.rb:294:in `block in start_thread'
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (4.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_route.html.erb (7.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_table.html.erb (22.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (156.0ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (71.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (136.9ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:04:15 +1000
+
+ActionController::RoutingError (No route matches [GET] "/users/import"):
+  actionpack (4.2.1) lib/action_dispatch/middleware/debug_exceptions.rb:21:in `call'
+  web-console (2.3.0) lib/web_console/middleware.rb:28:in `block in call'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `catch'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/show_exceptions.rb:30:in `call'
+  railties (4.2.1) lib/rails/rack/logger.rb:38:in `call_app'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `block in call'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `block in tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:26:in `tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `tagged'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/request_id.rb:21:in `call'
+  rack (1.6.4) lib/rack/methodoverride.rb:22:in `call'
+  rack (1.6.4) lib/rack/runtime.rb:18:in `call'
+  activesupport (4.2.1) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/static.rb:113:in `call'
+  rack (1.6.4) lib/rack/sendfile.rb:113:in `call'
+  railties (4.2.1) lib/rails/engine.rb:518:in `call'
+  railties (4.2.1) lib/rails/application.rb:164:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  rack (1.6.4) lib/rack/content_length.rb:15:in `call'
+  rack (1.6.4) lib/rack/handler/webrick.rb:88:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:138:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:94:in `run'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/server.rb:294:in `block in start_thread'
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_route.html.erb (4.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (2.1ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (112.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (49.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (114.3ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:04:23 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[35mUser Load (0.3ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (0.5ms)
+  Rendered layouts/_notification.html.erb (0.1ms)
+  Rendered layouts/_header.html.erb (0.3ms)
+  [1m[36mSite Load (0.3ms)[0m  [1mSELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC[0m  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (9.9ms)
+Completed 200 OK in 274ms (Views: 254.3ms | ActiveRecord: 5.3ms)
+
+
+Started GET "/assets/application.self-efcc326c4c83c0a3163f7c22d61c7996f0820c8b3a240b199c75caece752208a.css?body=1" for ::1 at 2016-09-29 17:04:23 +1000
+
+
+Started GET "/assets/jquery.self-bd7ddd393353a8d2480a622e80342adf488fb6006d667e8b42e4c0073393abee.js?body=1" for ::1 at 2016-09-29 17:04:23 +1000
+
+
+Started GET "/assets/jquery_ujs.self-784a997f6726036b1993eb2217c9cb558e1cbb801c6da88105588c56f13b466a.js?body=1" for ::1 at 2016-09-29 17:04:23 +1000
+
+
+Started GET "/assets/toastr.min.self-3225740bec0ff66080f26fc01d336bef6e0307b83b5aa5761f8524d9f7294e3f.js?body=1" for ::1 at 2016-09-29 17:04:23 +1000
+
+
+Started GET "/assets/bootstrap/affix.self-f7aef9d98ee5ece34a6a92a6a15bba777d93e8d908b75c95a85088277f394200.js?body=1" for ::1 at 2016-09-29 17:04:23 +1000
+
+
+Started GET "/assets/turbolinks.self-c5acd7a204f5f25ce7a1d8a0e4d92e28d34c9e2df2c7371cd7af88e147e4ad82.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/alert.self-896ab026e6823f5cef2441e07dac53d0692a5b772ac58b1ce20aa624c342d3f4.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/carousel.self-b2e5e14483e6c31343a83861b7d487620f143d6fc2d07d5ae7544b6b225ba6be.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/button.self-d19f3e2bcd3a7a4d75c11b9141b3fabd2c11987da1e99c85548ec3ecf8db30c3.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/tab.self-9b77df34cbbb08ec93a806d6cdb741f04e3dbf3389978a0679146f2d2987bc89.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/collapse.self-93820e9b486e375a7fb4477602def3a6f8381fa6d50938d5378297ffbe4a1248.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/dropdown.self-30536ae4d54b2685c26b5787ed0eb549a9075717fe690cce6270873bedf2df00.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/transition.self-9616c4e856b57659b67da3c6f2adcd584b5601ef4bebcdadab8ebb387d80bb25.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/scrollspy.self-c5c6ed008955656d345067e9821d79f1216b8383134d08465d4aa1a33a2b93b4.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/modal.self-bcfe54f3132bf16a8c5ce4289e47eba488f6522a08f49f378a037061c6c7aa4c.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/tooltip.self-3aa41fbe871573b34e0ebddf31598cd5a11a9841ca85f90934ea46326e46626d.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap/popover.self-b73e9c9111d01148e24bbc46e096782e024dc5db630e7078cf11ed2587ef8551.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-sprockets.self-fbfa5ad7d9aa0afe439ec4ff3883acc4cb92b62cb67c40d674320c9aa1d4642d.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/billing_sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/boostrap.file-input.self-808d7e2fe9c30c69e561fdb43a3b61ea352dda500e0f9df04a2a7713a16ad018.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/dashing.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/ftp_servers.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/invoices.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/meters.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/retail_plans.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/users.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/sb-admin-2.self-3d677525bad46d3fc34a2f4f418b409d9cbf291fcea484b39f70c4865151b2a5.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/metisMenu.self-a0b59a1c98dba94ede1ca717efa162dc4bc8e4db81e52a3d91127e51b810917b.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/moment.self-0da3eb4ebf8fb8c3113d89afb90e5b7a87760d21b5b39a405a51fe05c8e40fd8.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datetimepicker.self-953135ed994cc31cc9cfec48a266ddfc2017dce124e3a2d0503f69d3c31ed8be.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/core.self-57c10ac271cbabce89f4ea96d8248e58dc13bdd3928a468fcbf58dabc5e98db2.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ar.self-3b6d7157be553c75fb586e9bbcb1caf9ffb68b3e52621ce7a0b4d80b3816a41e.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.az.self-e95a3ffa2c92ab9fd1c490585f0664f385a0c529f4b462c4e8f1fab196728f98.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bg.self-962a18198db67ac87d9079f67b2167072ca4588cb77341999c5d6a93334a9143.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bs.self-a9f88ff3048eda7a3915d3bc5fee831813bf64357688ca1d71249f190b5b3c2e.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ca.self-9a18332afeed3b5d913f701e3a5359a3906fac9f8fe0d8271bfa59b17bef3843.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cs.self-d8764534d484a8ad1107f25d5055c72def7515ff37b74002e171bc01791e2569.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cy.self-6269279f98dbec07d08be043c80d3698c8db6da6098298b06c7e9eaca989db3a.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.da.self-3cb1f2509fcef48537941cbfc1e01034b1803fb2a32d1fbccf9eea1d71a3d144.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.de.self-df52cb73f35b10e81c27da3726fedcb47ce944244b37822f2808191f1b699614.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.el.self-c47144f58a0c79632a13f38f22efd1b9f2d077e4d6ed1184c473b92bb0a17383.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-AU.self-6667a122850dd1f2b2e036bdaad22bc82d7fb3d6f24c0eb0ca5455cbdfae2985.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.self-e822658c28f996dd9184e78b590ee770da01e479bc73fdb235b694232278bb4c.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-IE.self-2343c16be658cb33730d4bb5cc188138bfbfff767491792dba7fb6c3feec55f3.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-NZ.self-e7bff6fcdc1f42c430f5244edebec300ec6789167e45ad0d8c919a0d448a85c2.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-ZA.self-549cd856dbe9789814440b4a2b1ed261958a653716f64283cafd91fe41984ce7.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eo.self-bb3c1772c20b81e485802d43cdcda342c29037880fca098f5a82db81c8decae7.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.es.self-842ee703891e9e2578cff08e872f082190b7b443253897c84981fb1241ef1483.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.et.self-8d6af09ae9e4558db67ad818cac5de0451f7a10dc31a6e2987a715562524c44b.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eu.self-0df62f8cfe7e8b05855195ee28292e9cf35ec174cd33f7feac7c62e5e6066bda.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fa.self-20ab53975a47e1cdba4e7a41e0f0c567a2a699d53118ccdf6ea5aae33b692d15.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fi.self-2609765afa68eb2078568f8d785522a588a73222538228637427eac53496df66.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fo.self-fd8c0c500526cb16dd180ba9d832a4e5e0d40c3a570318a73ee2076b32cbbd1a.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr-CH.self-5a3e4840822fb4e6aa55af077ce89acb48e1629c299244258666a9eaf3e16a5f.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr.self-fc22f4a24fd9c64106ee1ffdd8167f9bcbb8544093f9acfd3e78cc79acaaa8ab.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.gl.self-1fccddef3fa899f6fc9f859fb7ea9d5839b554e6ec225bc2c195bd7f67ea55ad.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.he.self-9d26121395049e408a1223d6eeccf625e4969a6a5d52f740af1ad533646e93a4.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hr.self-7e61fabfb46c1eb015b85ee997ba8710aebb4640736f5ac596cfd37f32caab66.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hu.self-f49dd94a82276c26c3441a8f5834842aaff8e1015d2ee90af3a842482685b1b3.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hy.self-519e17fdf49be45e3c787cde8525c882046f51fd063bfc978bc38a37308dc7e9.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.id.self-ea07114145eb6345c3e6b4e0ab99c8dcb42b05e7fc972cbde0997b752895ebc9.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.is.self-eb9734e137173e9c043266c371c2dc6723f896d0d10cd0d9489ab448425352de.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it-CH.self-717fdb47d5142b72e9e7f64eec844ae20deacf76e64b484fc6c52139ea64e607.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it.self-71bbf2309e2ea365c4b4e21bcf5fa9e79bd1fb6aee0a2f097a0439645a79dbf7.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ja.self-cb335efac68187f94ccc34ed07c05f7cf6ace4ae97770209f1e89c92892f0610.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ka.self-b8cf8fca37ec25ed1c3872fed7e439361179491173710ea1dfa3e784e9c5bbd0.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kh.self-9d2694499d40685986d7db3a0fb8145a88ed95a042b4d7b86545493ce3c1201f.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kk.self-4845840e42189e63d0aa4796c6664efe1edc81c9390acfdf1e5514fb91dc294e.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ko.self-77411d790ff5bbd9da257d55c4375bc080c3c72222f94abc313f675eeabaedd1.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kr.self-2c4ff027cc32c6144d3460f8e1b848fbc60db128d486ae541883497f289127bb.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lt.self-fc4a3d6ee6a275732e35936f07c8fee862c21064b1471d79be6a50a81627c395.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lv.self-5d8e8777406208ba6d788c14eb94dc6ec161efe23c377bb1688acd8a3dc80c70.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.me.self-bc3ded41fba54540cb7c229e2a81c54e1dc95aa060e13249996c3af17a07d925.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mk.self-2879e14c87c2ed072afa02e973d28c25eccda71604f545f325f5ccb7f9566d9a.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mn.self-9bde9683a01be40a036bf1d3df9376fc1855a9df29248e5604ab8c1926bafe4f.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ms.self-5448409786aef52a30a3fa0309fed12e2972d62f3ffcecd3daad3661d2b3a3bb.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nb.self-bc15d9793637e09369dcc17cc1f76ee50f8fb3bd314b592238db7e107ba9780c.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl-BE.self-8a42d57bf7a5ef08e774ad6ac07ccc42119609f0887a0a9db992a31bc22fb8c8.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl.self-12fa155a1784c9def99d028f7178ab609055cce8de67d75371780172dea6e6ce.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.no.self-835c27d08aa948acba7a496420da4d74da46ffbe5b7b900d927debc46878ceba.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pl.self-bd9ed91cf705ebdec0d35a577541cb18a7b106c255b63b14048b839454783b50.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt-BR.self-c8b0cbc3c837667cc1e12914294f4cc5e3310d82d74031773327f31004772938.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt.self-761e5926a9ad2a08a3931dbecc3f19f9079398de8cd2388f2a193c14d40d7de7.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ro.self-b0f0745b965ffc6c72f79cf8ab7962617897fd538084871b7316538cabf5ab3d.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs-latin.self-9778ded684088fc0d8cd4abcb87572575e59f1027cdbfa98570db215dfed95d0.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs.self-968b0850c75dc75987a4287bd692cad3d074729c3a0f67f92d48cfb6ccd1eac9.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ru.self-4e8d9a4dc60207a247dd0e4d7c0f172c8cd08f8b4f1e8e86dd7384489559aafb.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sk.self-508e59df5ae2738367e9ee26ceb1984620c7d3365d89c500a2f654c73e41c4cc.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sl.self-18b1915d69a94d8c0c7dc954a99ae4786ff2f67d4925370ccb926692fc536885.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sq.self-3224e5dba45c9b9362543f5efe2a02d23b71b7181ea0b7a92fc4637559f17799.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr-latin.self-be5aec102faba5f69237b7bb53843eed7f75c417025cf9105616fe3bea3e3da0.js?body=1" for ::1 at 2016-09-29 17:04:24 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr.self-0fdd9f114cd83480c0d41f6c4cd9ff5d41984d64f6d7944bd4739f2b9a8b0559.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sv.self-59511a9cf8697e071e3e45937a4ffa74ce67edf099d767fcfcd43544833b639f.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sw.self-6b5e12e322803172a7bb234b38a2774a18b7057caba09bf10e95276875879a35.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.th.self-38ccaf19cff8c13178de6efb294156266bbb5ce6652531d4b53f7f869986ce71.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.tr.self-32d4dcbd80fec4c33ced2cc50217d1cdfe9b351815a939878dedd504f0f29eec.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ua.self-d3090a654f9c3b2ecf04746b1d8616e9fbcd4f6063435f91e76ffd00688684f4.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.uk.self-ba78379f87a0202998faa6e7c5b20476712eb0431e243819807b20ef110db58f.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.vi.self-36dc3fbbffa4afffa02f84c934c42cc69a7b8bf9637967f9d510c3a595c06bfd.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.self-ea1ea635099f9e93b2f5903108a2f939897810d090fa5959545f9cd4ecfaef14.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.self-919520009565c93f98d81b453874a8adc045d992e4cf63904186e82f852e123b.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/index.self-75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/application.self-036edc19c6d0799d92488769039b87c1c0f2a13d5179f852a93ab92fe194898e.js?body=1" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/assets/fontawesome-webfont-3c4a1bb7ce3234407184f0d80cc4dec075e4ad616b44dcc5778e1cfb1bc24019.woff2?v=4.4.0" for ::1 at 2016-09-29 17:04:25 +1000
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:04:38 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[35mUser Load (0.3ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (0.5ms)
+  Rendered layouts/_notification.html.erb (0.2ms)
+  Rendered layouts/_header.html.erb (0.4ms)
+  [1m[36mSite Load (0.3ms)[0m  [1mSELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC[0m  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (9.8ms)
+Completed 200 OK in 275ms (Views: 256.0ms | ActiveRecord: 5.5ms)
+
+
+Started GET "/assets/jquery.self-bd7ddd393353a8d2480a622e80342adf488fb6006d667e8b42e4c0073393abee.js?body=1" for ::1 at 2016-09-29 17:04:38 +1000
+
+
+Started GET "/assets/bootstrap/affix.self-f7aef9d98ee5ece34a6a92a6a15bba777d93e8d908b75c95a85088277f394200.js?body=1" for ::1 at 2016-09-29 17:04:38 +1000
+
+
+Started GET "/assets/toastr.min.self-3225740bec0ff66080f26fc01d336bef6e0307b83b5aa5761f8524d9f7294e3f.js?body=1" for ::1 at 2016-09-29 17:04:38 +1000
+
+
+Started GET "/assets/application.self-efcc326c4c83c0a3163f7c22d61c7996f0820c8b3a240b199c75caece752208a.css?body=1" for ::1 at 2016-09-29 17:04:38 +1000
+
+
+Started GET "/assets/turbolinks.self-c5acd7a204f5f25ce7a1d8a0e4d92e28d34c9e2df2c7371cd7af88e147e4ad82.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/jquery_ujs.self-784a997f6726036b1993eb2217c9cb558e1cbb801c6da88105588c56f13b466a.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/alert.self-896ab026e6823f5cef2441e07dac53d0692a5b772ac58b1ce20aa624c342d3f4.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/carousel.self-b2e5e14483e6c31343a83861b7d487620f143d6fc2d07d5ae7544b6b225ba6be.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/dropdown.self-30536ae4d54b2685c26b5787ed0eb549a9075717fe690cce6270873bedf2df00.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/tab.self-9b77df34cbbb08ec93a806d6cdb741f04e3dbf3389978a0679146f2d2987bc89.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/button.self-d19f3e2bcd3a7a4d75c11b9141b3fabd2c11987da1e99c85548ec3ecf8db30c3.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/collapse.self-93820e9b486e375a7fb4477602def3a6f8381fa6d50938d5378297ffbe4a1248.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/transition.self-9616c4e856b57659b67da3c6f2adcd584b5601ef4bebcdadab8ebb387d80bb25.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/scrollspy.self-c5c6ed008955656d345067e9821d79f1216b8383134d08465d4aa1a33a2b93b4.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/modal.self-bcfe54f3132bf16a8c5ce4289e47eba488f6522a08f49f378a037061c6c7aa4c.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/tooltip.self-3aa41fbe871573b34e0ebddf31598cd5a11a9841ca85f90934ea46326e46626d.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap/popover.self-b73e9c9111d01148e24bbc46e096782e024dc5db630e7078cf11ed2587ef8551.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-sprockets.self-fbfa5ad7d9aa0afe439ec4ff3883acc4cb92b62cb67c40d674320c9aa1d4642d.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/billing_sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/boostrap.file-input.self-808d7e2fe9c30c69e561fdb43a3b61ea352dda500e0f9df04a2a7713a16ad018.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/dashing.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/ftp_servers.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/invoices.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/meters.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/retail_plans.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/sites.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/users.self-877aef30ae1b040ab8a3aba4e3e309a11d7f2612f44dde450b5c157aa5f95c05.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/sb-admin-2.self-3d677525bad46d3fc34a2f4f418b409d9cbf291fcea484b39f70c4865151b2a5.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/metisMenu.self-a0b59a1c98dba94ede1ca717efa162dc4bc8e4db81e52a3d91127e51b810917b.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/moment.self-0da3eb4ebf8fb8c3113d89afb90e5b7a87760d21b5b39a405a51fe05c8e40fd8.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datetimepicker.self-953135ed994cc31cc9cfec48a266ddfc2017dce124e3a2d0503f69d3c31ed8be.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/core.self-57c10ac271cbabce89f4ea96d8248e58dc13bdd3928a468fcbf58dabc5e98db2.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ar.self-3b6d7157be553c75fb586e9bbcb1caf9ffb68b3e52621ce7a0b4d80b3816a41e.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.az.self-e95a3ffa2c92ab9fd1c490585f0664f385a0c529f4b462c4e8f1fab196728f98.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bg.self-962a18198db67ac87d9079f67b2167072ca4588cb77341999c5d6a93334a9143.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.bs.self-a9f88ff3048eda7a3915d3bc5fee831813bf64357688ca1d71249f190b5b3c2e.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ca.self-9a18332afeed3b5d913f701e3a5359a3906fac9f8fe0d8271bfa59b17bef3843.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cs.self-d8764534d484a8ad1107f25d5055c72def7515ff37b74002e171bc01791e2569.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.cy.self-6269279f98dbec07d08be043c80d3698c8db6da6098298b06c7e9eaca989db3a.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.da.self-3cb1f2509fcef48537941cbfc1e01034b1803fb2a32d1fbccf9eea1d71a3d144.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.de.self-df52cb73f35b10e81c27da3726fedcb47ce944244b37822f2808191f1b699614.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.el.self-c47144f58a0c79632a13f38f22efd1b9f2d077e4d6ed1184c473b92bb0a17383.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-AU.self-6667a122850dd1f2b2e036bdaad22bc82d7fb3d6f24c0eb0ca5455cbdfae2985.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-GB.self-e822658c28f996dd9184e78b590ee770da01e479bc73fdb235b694232278bb4c.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-IE.self-2343c16be658cb33730d4bb5cc188138bfbfff767491792dba7fb6c3feec55f3.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-NZ.self-e7bff6fcdc1f42c430f5244edebec300ec6789167e45ad0d8c919a0d448a85c2.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eo.self-bb3c1772c20b81e485802d43cdcda342c29037880fca098f5a82db81c8decae7.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.es.self-842ee703891e9e2578cff08e872f082190b7b443253897c84981fb1241ef1483.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.et.self-8d6af09ae9e4558db67ad818cac5de0451f7a10dc31a6e2987a715562524c44b.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.eu.self-0df62f8cfe7e8b05855195ee28292e9cf35ec174cd33f7feac7c62e5e6066bda.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fa.self-20ab53975a47e1cdba4e7a41e0f0c567a2a699d53118ccdf6ea5aae33b692d15.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.en-ZA.self-549cd856dbe9789814440b4a2b1ed261958a653716f64283cafd91fe41984ce7.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fi.self-2609765afa68eb2078568f8d785522a588a73222538228637427eac53496df66.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fo.self-fd8c0c500526cb16dd180ba9d832a4e5e0d40c3a570318a73ee2076b32cbbd1a.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr-CH.self-5a3e4840822fb4e6aa55af077ce89acb48e1629c299244258666a9eaf3e16a5f.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.fr.self-fc22f4a24fd9c64106ee1ffdd8167f9bcbb8544093f9acfd3e78cc79acaaa8ab.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.gl.self-1fccddef3fa899f6fc9f859fb7ea9d5839b554e6ec225bc2c195bd7f67ea55ad.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.he.self-9d26121395049e408a1223d6eeccf625e4969a6a5d52f740af1ad533646e93a4.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hr.self-7e61fabfb46c1eb015b85ee997ba8710aebb4640736f5ac596cfd37f32caab66.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hu.self-f49dd94a82276c26c3441a8f5834842aaff8e1015d2ee90af3a842482685b1b3.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.hy.self-519e17fdf49be45e3c787cde8525c882046f51fd063bfc978bc38a37308dc7e9.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.id.self-ea07114145eb6345c3e6b4e0ab99c8dcb42b05e7fc972cbde0997b752895ebc9.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.is.self-eb9734e137173e9c043266c371c2dc6723f896d0d10cd0d9489ab448425352de.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it-CH.self-717fdb47d5142b72e9e7f64eec844ae20deacf76e64b484fc6c52139ea64e607.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.it.self-71bbf2309e2ea365c4b4e21bcf5fa9e79bd1fb6aee0a2f097a0439645a79dbf7.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ja.self-cb335efac68187f94ccc34ed07c05f7cf6ace4ae97770209f1e89c92892f0610.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ka.self-b8cf8fca37ec25ed1c3872fed7e439361179491173710ea1dfa3e784e9c5bbd0.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kh.self-9d2694499d40685986d7db3a0fb8145a88ed95a042b4d7b86545493ce3c1201f.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kk.self-4845840e42189e63d0aa4796c6664efe1edc81c9390acfdf1e5514fb91dc294e.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ko.self-77411d790ff5bbd9da257d55c4375bc080c3c72222f94abc313f675eeabaedd1.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.kr.self-2c4ff027cc32c6144d3460f8e1b848fbc60db128d486ae541883497f289127bb.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lt.self-fc4a3d6ee6a275732e35936f07c8fee862c21064b1471d79be6a50a81627c395.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.lv.self-5d8e8777406208ba6d788c14eb94dc6ec161efe23c377bb1688acd8a3dc80c70.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.me.self-bc3ded41fba54540cb7c229e2a81c54e1dc95aa060e13249996c3af17a07d925.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mk.self-2879e14c87c2ed072afa02e973d28c25eccda71604f545f325f5ccb7f9566d9a.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.mn.self-9bde9683a01be40a036bf1d3df9376fc1855a9df29248e5604ab8c1926bafe4f.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ms.self-5448409786aef52a30a3fa0309fed12e2972d62f3ffcecd3daad3661d2b3a3bb.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nb.self-bc15d9793637e09369dcc17cc1f76ee50f8fb3bd314b592238db7e107ba9780c.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl-BE.self-8a42d57bf7a5ef08e774ad6ac07ccc42119609f0887a0a9db992a31bc22fb8c8.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.nl.self-12fa155a1784c9def99d028f7178ab609055cce8de67d75371780172dea6e6ce.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.no.self-835c27d08aa948acba7a496420da4d74da46ffbe5b7b900d927debc46878ceba.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pl.self-bd9ed91cf705ebdec0d35a577541cb18a7b106c255b63b14048b839454783b50.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt-BR.self-c8b0cbc3c837667cc1e12914294f4cc5e3310d82d74031773327f31004772938.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.pt.self-761e5926a9ad2a08a3931dbecc3f19f9079398de8cd2388f2a193c14d40d7de7.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ro.self-b0f0745b965ffc6c72f79cf8ab7962617897fd538084871b7316538cabf5ab3d.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs-latin.self-9778ded684088fc0d8cd4abcb87572575e59f1027cdbfa98570db215dfed95d0.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.rs.self-968b0850c75dc75987a4287bd692cad3d074729c3a0f67f92d48cfb6ccd1eac9.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ru.self-4e8d9a4dc60207a247dd0e4d7c0f172c8cd08f8b4f1e8e86dd7384489559aafb.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sk.self-508e59df5ae2738367e9ee26ceb1984620c7d3365d89c500a2f654c73e41c4cc.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sl.self-18b1915d69a94d8c0c7dc954a99ae4786ff2f67d4925370ccb926692fc536885.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sq.self-3224e5dba45c9b9362543f5efe2a02d23b71b7181ea0b7a92fc4637559f17799.js?body=1" for ::1 at 2016-09-29 17:04:39 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr-latin.self-be5aec102faba5f69237b7bb53843eed7f75c417025cf9105616fe3bea3e3da0.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sr.self-0fdd9f114cd83480c0d41f6c4cd9ff5d41984d64f6d7944bd4739f2b9a8b0559.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sv.self-59511a9cf8697e071e3e45937a4ffa74ce67edf099d767fcfcd43544833b639f.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.sw.self-6b5e12e322803172a7bb234b38a2774a18b7057caba09bf10e95276875879a35.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.th.self-38ccaf19cff8c13178de6efb294156266bbb5ce6652531d4b53f7f869986ce71.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.tr.self-32d4dcbd80fec4c33ced2cc50217d1cdfe9b351815a939878dedd504f0f29eec.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.ua.self-d3090a654f9c3b2ecf04746b1d8616e9fbcd4f6063435f91e76ffd00688684f4.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.uk.self-ba78379f87a0202998faa6e7c5b20476712eb0431e243819807b20ef110db58f.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.vi.self-36dc3fbbffa4afffa02f84c934c42cc69a7b8bf9637967f9d510c3a595c06bfd.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.self-ea1ea635099f9e93b2f5903108a2f939897810d090fa5959545f9cd4ecfaef14.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.self-919520009565c93f98d81b453874a8adc045d992e4cf63904186e82f852e123b.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/bootstrap-datepicker/index.self-75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/application.self-036edc19c6d0799d92488769039b87c1c0f2a13d5179f852a93ab92fe194898e.js?body=1" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started GET "/assets/fontawesome-webfont-3c4a1bb7ce3234407184f0d80cc4dec075e4ad616b44dcc5778e1cfb1bc24019.woff2?v=4.4.0" for ::1 at 2016-09-29 17:04:40 +1000
+
+
+Started POST "/users/import" for ::1 at 2016-09-29 17:04:44 +1000
+
+ActionController::RoutingError (No route matches [POST] "/users/import"):
+  actionpack (4.2.1) lib/action_dispatch/middleware/debug_exceptions.rb:21:in `call'
+  web-console (2.3.0) lib/web_console/middleware.rb:28:in `block in call'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `catch'
+  web-console (2.3.0) lib/web_console/middleware.rb:18:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/show_exceptions.rb:30:in `call'
+  railties (4.2.1) lib/rails/rack/logger.rb:38:in `call_app'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `block in call'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `block in tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:26:in `tagged'
+  activesupport (4.2.1) lib/active_support/tagged_logging.rb:68:in `tagged'
+  railties (4.2.1) lib/rails/rack/logger.rb:20:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/request_id.rb:21:in `call'
+  rack (1.6.4) lib/rack/methodoverride.rb:22:in `call'
+  rack (1.6.4) lib/rack/runtime.rb:18:in `call'
+  activesupport (4.2.1) lib/active_support/cache/strategy/local_cache_middleware.rb:28:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  actionpack (4.2.1) lib/action_dispatch/middleware/static.rb:113:in `call'
+  rack (1.6.4) lib/rack/sendfile.rb:113:in `call'
+  railties (4.2.1) lib/rails/engine.rb:518:in `call'
+  railties (4.2.1) lib/rails/application.rb:164:in `call'
+  rack (1.6.4) lib/rack/lock.rb:17:in `call'
+  rack (1.6.4) lib/rack/content_length.rb:15:in `call'
+  rack (1.6.4) lib/rack/handler/webrick.rb:88:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:138:in `service'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/httpserver.rb:94:in `run'
+  /Users/Keran/.rvm/rubies/ruby-2.2.2/lib/ruby/2.2.0/webrick/server.rb:294:in `block in start_thread'
+
+
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_trace.html.erb (1.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_route.html.erb (6.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/routes/_table.html.erb (1.3ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/_request_and_response.html.erb (1.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/actionpack-4.2.1/lib/action_dispatch/middleware/templates/rescues/routing_error.html.erb within rescues/layout (116.7ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_markup.html.erb (0.8ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_inner_console_markup.html.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/_prompt_box_markup.html.erb within layouts/inlined_string (0.5ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/style.css.erb within layouts/inlined_string (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/console.js.erb within layouts/javascript (55.2ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/main.js.erb within layouts/javascript (0.4ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/error_page.js.erb within layouts/javascript (0.6ms)
+  Rendered /Users/Keran/.rvm/gems/ruby-2.2.2/gems/web-console-2.3.0/lib/web_console/templates/index.html.erb (120.7ms)
+
+
+Started GET "/users/import" for ::1 at 2016-09-29 17:08:12 +1000
+Processing by UsersController#upload_nem12 as HTML
+  [1m[35mUser Load (0.3ms)[0m  SELECT  "users".* FROM "users" WHERE "users"."id" = $1  ORDER BY "users"."id" ASC LIMIT 1  [["id", 1]]
+  Rendered users/upload_nem12.html.erb within layouts/application (0.5ms)
+  Rendered layouts/_notification.html.erb (0.1ms)
+  Rendered layouts/_header.html.erb (0.5ms)
+  [1m[36mSite Load (0.3ms)[0m  [1mSELECT "sites".* FROM "sites" WHERE "sites"."user_id" = $1  ORDER BY "sites"."id" ASC[0m  [["user_id", 1]]
+  Rendered layouts/_sidebar.html.erb (9.1ms)
+Completed 200 OK in 255ms (Views: 237.4ms | ActiveRecord: 5.5ms)
